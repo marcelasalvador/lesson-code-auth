@@ -14,11 +14,11 @@ const { isLoggedIn, isLoggedOut } = require("../middleware/route-guard.js");
 
 // GET route ==> to display the signup form to users
 //                     .: ADDED :.
-router.get("/signup", isLoggedOut, (req, res) => res.render("auth/signup"));
+router.get("/signup", (req, res) => res.render("auth/signup"));
 
 // POST route ==> to process form data
 //                      .: ADDED :.
-router.post("/signup", isLoggedOut, (req, res, next) => {
+router.post("/signup", (req, res, next) => {
   // console.log("The form data: ", req.body);
 
   const { username, email, password } = req.body;
@@ -77,11 +77,11 @@ router.post("/signup", isLoggedOut, (req, res, next) => {
 // GET route ==> to display the login form to users
 
 //                    .: ADDED :.
-router.get("/login", isLoggedOut, (req, res) => res.render("auth/login"));
+router.get("/login", (req, res) => res.render("auth/login"));
 
 // POST login route ==> to process form data
 //                     .: ADDED :.
-router.post("/login", isLoggedOut, (req, res, next) => {
+router.post("/login", (req, res, next) => {
   console.log("SESSION =====> ", req.session);
   const { email, password } = req.body;
 
@@ -119,18 +119,26 @@ router.post("/login", isLoggedOut, (req, res, next) => {
         // if the two passwords DON'T match, render the login form again
         // and send the error message to the user
         res.render("auth/login", { errorMessage: "Incorrect password." });
+        console.log("these are RES locals", res.locals)
       }
     })
-    .catch((error) => next(error));
-});
+    .finally(() => {
+      console.log("these are RES locals", res.locals)
+    })
+    .catch((error) => {
+      next(error)
+    });
+    
+    
+}) 
 
 //                         .: ADDED :.
-router.get("/userProfile", isLoggedIn, (req, res) => {
+router.get("/userProfile", (req, res) => {
   res.render("users/user-profile", { userInSession: req.session.currentUser });
 });
 
 //                     .: ADDED :.
-router.post("/logout", isLoggedIn, (req, res) => {
+router.post("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
